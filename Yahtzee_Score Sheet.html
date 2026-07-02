@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#c1272d">
+  <title>Yahtzee Scorecard</title>
+  <style>
+    :root {
+      --bg: #faf7f2;
+      --card: #ffffff;
+      --ink: #1a1a1a;
+      --ink-soft: #6b6b6b;
+      --line: #e5e0d5;
+      --line-soft: #f0ebe0;
+      --accent: #c1272d;
+      --accent-dark: #8f1c22;
+      --accent-soft: #fbeaeb;
+      --success: #2d7a3e;
+      --success-soft: #e8f5e9;
+      --warning: #b8860b;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-text-size-adjust: 100%;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 16px 12px 40px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 2.75rem;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      color: var(--accent);
+      margin: 0 0 4px;
+      font-style: italic;
+      transform: skew(-6deg);
+      display: inline-block;
+      text-shadow: 2px 2px 0 rgba(193, 39, 45, 0.15);
+    }
+
+    .subtitle {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--ink-soft);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .names {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .names label {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ink-soft);
+      text-align: left;
+      font-weight: 700;
+    }
+
+    .names input {
+      margin-top: 5px;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      font-size: 16px;
+      color: var(--ink);
+      font-family: inherit;
+      font-weight: 600;
+    }
+
+    .names input:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: -1px;
+      border-color: transparent;
+    }
+
+    section.card {
+      background: var(--card);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 14px 12px 12px;
+      margin-bottom: 14px;
+    }
+
+    section.card h2 {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      margin: 2px 4px 12px;
+    }
+
+    table.score {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      table-layout: fixed;
+    }
+
+    table.score th,
+    table.score td {
+      padding: 5px 3px;
+      text-align: center;
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    table.score th {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ink-soft);
+      font-weight: 800;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    table.score th:first-child,
+    table.score td.cat {
+      text-align: left;
+      font-weight: 700;
+      color: var(--ink);
+      width: 36%;
+      padding-left: 6px;
+      font-size: 0.88rem;
+    }
+
+    table.score td.cat small {
+      display: block;
+      font-size: 0.62rem;
+      color: var(--ink-soft);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      margin-top: 1px;
+    }
+
+    table.score input[type="number"] {
+      width: 100%;
+      padding: 10px 2px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fafaf7;
+      font-size: 16px;
+      text-align: center;
+      color: var(--ink);
+      font-family: inherit;
+      font-weight: 700;
+      min-height: 42px;
+      -moz-appearance: textfield;
+      font-variant-numeric: tabular-nums;
+    }
+
+    table.score input[type="number"]::-webkit-outer-spin-button,
+    table.score input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    table.score input:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: -1px;
+      border-color: transparent;
+      background: white;
+    }
+
+    tfoot td,
+    tr.total-row td {
+      font-weight: 700;
+      background: #f7f4ec;
+      padding: 9px 3px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    tr.divider td {
+      border-top: 2px solid var(--line);
+    }
+
+    .calc {
+      font-variant-numeric: tabular-nums;
+      font-weight: 800;
+      font-size: 1rem;
+    }
+
+    .bonus-earned {
+      color: var(--success);
+    }
+
+    .bonus-hint {
+      color: var(--ink-soft);
+      font-weight: 500;
+      font-size: 0.72rem;
+    }
+
+    .grand-cell {
+      background: var(--accent) !important;
+      color: white;
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+
+    .combined-total {
+      margin-top: 14px;
+      padding: 14px 16px;
+      background: var(--accent);
+      color: white;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .combined-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+      opacity: 0.95;
+    }
+
+    .combined-value {
+      font-size: 1.8rem;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
+    }
+
+    .compare-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+
+    .compare-row label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ink-soft);
+      font-weight: 700;
+    }
+
+    .compare-row input {
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      font-size: 18px;
+      font-weight: 700;
+      text-align: center;
+      font-family: inherit;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .compare-row input:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: -1px;
+      border-color: transparent;
+    }
+
+    button.primary,
+    button.secondary {
+      width: 100%;
+      padding: 14px 20px;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: inherit;
+      min-height: 48px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      transition: transform 0.05s ease;
+    }
+
+    button.primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    button.primary:hover,
+    button.primary:active {
+      background: var(--accent-dark);
+    }
+
+    button.primary:active {
+      transform: scale(0.99);
+    }
+
+    button.secondary {
+      background: transparent;
+      color: var(--accent);
+      border: 1.5px solid var(--accent);
+    }
+
+    button.secondary:hover,
+    button.secondary:active {
+      background: var(--accent-soft);
+    }
+
+    .result {
+      margin-top: 14px;
+      padding: 18px 16px;
+      border-radius: 10px;
+      text-align: center;
+      display: none;
+    }
+
+    .result.win {
+      background: var(--success-soft);
+      color: #1b5e20;
+      border: 1.5px solid #a5d6a7;
+    }
+
+    .result.lose {
+      background: #ffebee;
+      color: #b71c1c;
+      border: 1.5px solid #ef9a9a;
+    }
+
+    .result.tie {
+      background: #fff8e1;
+      color: #7f5d00;
+      border: 1.5px solid #ffe082;
+    }
+
+    .result-headline {
+      font-size: 1.35rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+      letter-spacing: -0.01em;
+    }
+
+    .result-detail {
+      font-size: 0.95rem;
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .footer-actions {
+      margin-top: 24px;
+    }
+
+    /* Slightly larger typography on tablets/wide phones */
+    @media (min-width: 500px) {
+      .app { padding: 20px 16px 40px; }
+      table.score th, table.score td { font-size: 0.95rem; padding: 6px 5px; }
+      table.score td.cat { font-size: 0.95rem; }
+      h1 { font-size: 3.25rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>YAHTZEE</h1>
+      <div class="subtitle">Score Pad</div>
+      <div class="names">
+        <label>
+          Your name
+          <input type="text" id="playerName" autocomplete="off" placeholder="You">
+        </label>
+        <label>
+          Opponent
+          <input type="text" id="opponentName" autocomplete="off" placeholder="Opponent">
+        </label>
+      </div>
+    </header>
+
+    <section class="card">
+      <h2>Upper Section</h2>
+      <table class="score" id="upperTable"></table>
+    </section>
+
+    <section class="card">
+      <h2>Lower Section</h2>
+      <table class="score" id="lowerTable"></table>
+    </section>
+
+    <section class="card">
+      <h2>Grand Totals</h2>
+      <table class="score">
+        <thead>
+          <tr>
+            <th>&nbsp;</th>
+            <th>Game 1</th>
+            <th>Game 2</th>
+            <th>Game 3</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="total-row">
+            <td class="cat">Grand Total</td>
+            <td class="calc grand-cell" id="grand-g1">0</td>
+            <td class="calc grand-cell" id="grand-g2">0</td>
+            <td class="calc grand-cell" id="grand-g3">0</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="combined-total">
+        <span class="combined-label">Combined<br>(All 3 Games)</span>
+        <span class="combined-value" id="combinedTotal">0</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Compare Final Scores</h2>
+      <div class="compare-row">
+        <label for="opponentTotal">Opponent's combined total (all 3 games)</label>
+        <input type="number" inputmode="numeric" id="opponentTotal" placeholder="Enter their total">
+      </div>
+      <button class="primary" id="compareBtn">Compare Final Scores</button>
+      <div class="result" id="result"></div>
+    </section>
+
+    <div class="footer-actions">
+      <button class="secondary" id="resetBtn">Reset All Scores</button>
+    </div>
+  </div>
+
+  <script>
+    const NUM_GAMES = 3;
+    const STORAGE_KEY = 'yahtzee-scorecard-v1';
+
+    const CATEGORIES = {
+      upper: [
+        { id: 'aces',   label: 'Aces',   hint: 'Count of 1s' },
+        { id: 'twos',   label: 'Twos',   hint: 'Sum of 2s' },
+        { id: 'threes', label: 'Threes', hint: 'Sum of 3s' },
+        { id: 'fours',  label: 'Fours',  hint: 'Sum of 4s' },
+        { id: 'fives',  label: 'Fives',  hint: 'Sum of 5s' },
+        { id: 'sixes',  label: 'Sixes',  hint: 'Sum of 6s' }
+      ],
+      lower: [
+        { id: 'kind3',      label: '3 of a Kind',   hint: 'Sum of all dice' },
+        { id: 'kind4',      label: '4 of a Kind',   hint: 'Sum of all dice' },
+        { id: 'fullHouse',  label: 'Full House',    hint: '25 points' },
+        { id: 'smStraight', label: 'Sm. Straight',  hint: '30 points' },
+        { id: 'lgStraight', label: 'Lg. Straight',  hint: '40 points' },
+        { id: 'yahtzee',    label: 'YAHTZEE',       hint: '50 points' },
+        { id: 'chance',     label: 'Chance',        hint: 'Sum of all dice' }
+      ]
+    };
+
+    // ---------- Table builders ----------
+
+    function buildUpper() {
+      const rows = [];
+      rows.push('<thead><tr><th>Category</th>');
+      for (let g = 1; g <= NUM_GAMES; g++) rows.push(`<th>Game ${g}</th>`);
+      rows.push('</tr></thead><tbody>');
+
+      for (const c of CATEGORIES.upper) {
+        rows.push(`<tr><td class="cat">${c.label}<small>${c.hint}</small></td>`);
+        for (let g = 1; g <= NUM_GAMES; g++) {
+          rows.push(`<td><input type="number" inputmode="numeric" min="0" max="999" id="${c.id}-g${g}"></td>`);
+        }
+        rows.push('</tr>');
+      }
+      rows.push('</tbody><tfoot>');
+
+      rows.push('<tr class="divider"><td class="cat">Subtotal<small>Need 63 for bonus</small></td>');
+      for (let g = 1; g <= NUM_GAMES; g++) rows.push(`<td class="calc" id="upperSubtotal-g${g}"></td>`);
+      rows.push('</tr>');
+
+      rows.push('<tr><td class="cat">Bonus<small>+35 if subtotal ≥ 63</small></td>');
+      for (let g = 1; g <= NUM_GAMES; g++) rows.push(`<td class="calc" id="bonus-g${g}"></td>`);
+      rows.push('</tr>');
+
+      rows.push('<tr class="total-row"><td class="cat">Upper Total</td>');
+      for (let g = 1; g <= NUM_GAMES; g++) rows.push(`<td class="calc" id="upperTotal-g${g}"></td>`);
+      rows.push('</tr>');
+
+      rows.push('</tfoot>');
+      document.getElementById('upperTable').innerHTML = rows.join('');
+    }
+
+    function buildLower() {
+      const rows = [];
+      rows.push('<thead><tr><th>Category</th>');
+      for (let g = 1; g <= NUM_GAMES; g++) rows.push(`<th>Game ${g}</th>`);
+      rows.push('</tr></thead><tbody>');
+
+      for (const c of CATEGORIES.lower) {
+        rows.push(`<tr><td class="cat">${c.label}<small>${c.hint}</small></td>`);
+        for (let g = 1; g <= NUM_GAMES; g++) {
+          rows.push(`<td><input type="number" inputmode="numeric" min="0" max="999" id="${c.id}-g${g}"></td>`);
+        }
+        rows.push('</tr>');
+      }
+      rows.push('</tbody><tfoot>');
+
+      rows.push('<tr class="divider total-row"><td class="cat">Lower Total</td>');
+      for (let g = 1; g <= NUM_GAMES; g++) rows.push(`<td class="calc" id="lowerTotal-g${g}"></td>`);
+      rows.push('</tr>');
+
+      rows.push('</tfoot>');
+      document.getElementById('lowerTable').innerHTML = rows.join('');
+    }
+
+    // ---------- Calculation ----------
+
+    function getVal(id) {
+      const el = document.getElementById(id);
+      if (!el) return 0;
+      const v = parseInt(el.value, 10);
+      return isNaN(v) ? 0 : v;
+    }
+
+    function setText(id, text) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    }
+
+    function recalc() {
+      let combined = 0;
+
+      for (let g = 1; g <= NUM_GAMES; g++) {
+        // Upper subtotal (before bonus)
+        let upperSubtotal = 0;
+        for (const c of CATEGORIES.upper) upperSubtotal += getVal(`${c.id}-g${g}`);
+        setText(`upperSubtotal-g${g}`, upperSubtotal || '');
+
+        // Bonus + nudge text
+        const bonusEl = document.getElementById(`bonus-g${g}`);
+        let bonus = 0;
+        if (upperSubtotal >= 63) {
+          bonus = 35;
+          bonusEl.textContent = '35';
+          bonusEl.className = 'calc bonus-earned';
+        } else if (upperSubtotal > 0) {
+          bonusEl.textContent = `need ${63 - upperSubtotal}`;
+          bonusEl.className = 'calc bonus-hint';
+        } else {
+          bonusEl.textContent = '';
+          bonusEl.className = 'calc bonus-hint';
+        }
+
+        const upperTotal = upperSubtotal + bonus;
+        setText(`upperTotal-g${g}`, upperTotal || '');
+
+        // Lower total
+        let lowerTotal = 0;
+        for (const c of CATEGORIES.lower) lowerTotal += getVal(`${c.id}-g${g}`);
+        setText(`lowerTotal-g${g}`, lowerTotal || '');
+
+        // Grand total for this game
+        const grand = upperTotal + lowerTotal;
+        setText(`grand-g${g}`, grand);
+        combined += grand;
+      }
+
+      setText('combinedTotal', combined);
+      save();
+    }
+
+    // ---------- Persistence ----------
+
+    function save() {
+      const data = {
+        playerName: document.getElementById('playerName').value,
+        opponentName: document.getElementById('opponentName').value,
+        opponentTotal: document.getElementById('opponentTotal').value,
+        scores: {}
+      };
+      for (const section of ['upper', 'lower']) {
+        for (const c of CATEGORIES[section]) {
+          for (let g = 1; g <= NUM_GAMES; g++) {
+            const id = `${c.id}-g${g}`;
+            const el = document.getElementById(id);
+            if (el) data.scores[id] = el.value;
+          }
+        }
+      }
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
+    }
+
+    function load() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        if (data.playerName) document.getElementById('playerName').value = data.playerName;
+        if (data.opponentName) document.getElementById('opponentName').value = data.opponentName;
+        if (data.opponentTotal) document.getElementById('opponentTotal').value = data.opponentTotal;
+        if (data.scores) {
+          for (const [id, val] of Object.entries(data.scores)) {
+            const el = document.getElementById(id);
+            if (el) el.value = val;
+          }
+        }
+      } catch (e) {}
+    }
+
+    // ---------- Compare ----------
+
+    function escapeHtml(s) {
+      const div = document.createElement('div');
+      div.textContent = s;
+      return div.innerHTML;
+    }
+
+    function compareFinal() {
+      const yourTotal = parseInt(document.getElementById('combinedTotal').textContent, 10) || 0;
+      const oppTotal = parseInt(document.getElementById('opponentTotal').value, 10);
+
+      if (isNaN(oppTotal)) {
+        alert("Enter your opponent's total first.");
+        document.getElementById('opponentTotal').focus();
+        return;
+      }
+
+      const yourName = document.getElementById('playerName').value.trim() || 'You';
+      const oppName  = document.getElementById('opponentName').value.trim() || 'Opponent';
+
+      const result = document.getElementById('result');
+      result.className = 'result';
+      const diff = Math.abs(yourTotal - oppTotal);
+
+      if (yourTotal > oppTotal) {
+        result.classList.add('win');
+        result.innerHTML =
+          `<div class="result-headline">🏆 ${escapeHtml(yourName)} wins!</div>` +
+          `<div class="result-detail">${yourTotal} to ${oppTotal} &middot; won by ${diff}</div>`;
+      } else if (oppTotal > yourTotal) {
+        result.classList.add('lose');
+        result.innerHTML =
+          `<div class="result-headline">${escapeHtml(oppName)} wins</div>` +
+          `<div class="result-detail">${oppTotal} to ${yourTotal} &middot; lost by ${diff}</div>`;
+      } else {
+        result.classList.add('tie');
+        result.innerHTML =
+          `<div class="result-headline">🤝 It's a tie!</div>` +
+          `<div class="result-detail">Both scored ${yourTotal}</div>`;
+      }
+
+      result.style.display = 'block';
+      result.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      save();
+    }
+
+    // ---------- Reset ----------
+
+    function resetAll() {
+      if (!confirm('Clear all scores and start fresh? (Names will be kept.)')) return;
+      document.querySelectorAll('table.score input').forEach(el => el.value = '');
+      document.getElementById('opponentTotal').value = '';
+      document.getElementById('result').style.display = 'none';
+      recalc();
+    }
+
+    // ---------- Init ----------
+
+    function init() {
+      buildUpper();
+      buildLower();
+      load();
+
+      document.querySelectorAll('table.score input').forEach(el => {
+        el.addEventListener('input', recalc);
+      });
+
+      document.getElementById('playerName').addEventListener('input', save);
+      document.getElementById('opponentName').addEventListener('input', save);
+      document.getElementById('opponentTotal').addEventListener('input', save);
+
+      document.getElementById('compareBtn').addEventListener('click', compareFinal);
+      document.getElementById('resetBtn').addEventListener('click', resetAll);
+
+      recalc();
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
