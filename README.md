@@ -36,7 +36,7 @@ The app supports 2 to 8 players and features two distinct ways to keep score, de
 * **Dynamic Colors:** Every player tab generates a unique color palette so you always know whose sheet you are editing.
 * **Tie-Breaker Logic:** Automatically handles and displays standard ranking ties.
 
-##Limitations
+## Limitations
 * **Fully Self-Contained (No Cloud Sync):** This app runs entirely on your specific device and does not connect to the internet to sync with other phones. If multiple people are tracking their games on their own individual devices, they will not see each other's live updates and will need to share their final totals at the end (as described in Method 1).
 
 ## Disclaimer
