@@ -1,7 +1,7 @@
 # Yahtzee Scorecard
 [🎮 Open the Yahtzee Scorecard Here](https://ugl13rth4nu.github.io/Yahtzee/)
 
-An online, mobile-friendly HTML score sheet for playing Yahtzee. 
+An online, mobile-friendly HTML score sheet for playing Yahtzee.
 
 ## The Origin Story
 My mom and wife play Yahtzee together all the time, usually over the phone. I built this app because I got tired of wasting so much ink and paper on printed score sheets! It is designed to seamlessly accommodate their specific style of play and automatically handle all the final math.
